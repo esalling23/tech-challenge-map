@@ -7,7 +7,6 @@ router.get('/', function(req, res, next) {
     Voter.findAll()
     .then(result => {
         res.status(200).send(result);
-        console.log(result);
     })
     .catch(next);
 });

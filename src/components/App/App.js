@@ -1,43 +1,28 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import './style.css';
-class App extends Component {
+import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
+import geocoder from 'google-geocoder';
 
-  // Add the voter's choice to the database
-  addVoter(e) {
-    var that = this;
-    e.preventDefault();
-    let voter_data = {
-      'title': this.refs.voter_name.value,
-      'address' : this.refs.voter_address.value, 
-      'approves' : this.refs.voter_choice.checked
+const key = { key: 'AIzaSyBuLGSfSlrq8w-ZDbQbSlxnVSe_30Dn-Ao'};
+const coder = geocoder(key);
+
+export class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      title: 'Vote right here', 
+      voters: []
     };
-
-    console.log(voter_data);
-
-    var request = new Request('http://localhost:3000/api/voting', {
-      method: 'POST', 
-      headers: new Headers({ 'Content-Type': 'application/json'}), 
-      body: JSON.stringify(voter_data)
-    })
-
-    fetch(request)
-    .then(function(response) {
-      return response.json()
-    }).then(function(body) {
-      console.log(body);
-    })
-    .catch(function(err) {
-      console.log(err);
-    });
-
   }
 
-  // Show a full map of voters
-  showVoterPool(e) {
-    var that = this;
-    e.preventDefault();
+  componentDidMount() {
 
+    var that = this;
+
+    // Start with the full map of current voters
     var request = new Request('http://localhost:3000/api/voters', {
       method: 'GET', 
       headers: new Headers({ 'Content-Type': 'application/json'})
@@ -47,7 +32,9 @@ class App extends Component {
     .then(function(response) {
       return response.json()
     }).then(function(body) {
-      console.log(body);
+      that.setState({
+        voters: body
+      });
     })
     .catch(function(err) {
       console.log(err);
@@ -55,9 +42,52 @@ class App extends Component {
 
   }
 
+
+  // Add the voter's choice to the database
+  addVoter(e) {
+    var that = this;
+    e.preventDefault();
+
+    coder.find( this.refs.voter_address.value , function handleResults(results, status) {
+      console.log(results)
+      // process voter with geocoded address
+      let voter_data = {
+        'title': that.refs.voter_name.value,
+        'address' : that.refs.voter_address.value, 
+        'approves' : that.refs.voter_choice.checked
+      };
+
+      var request = new Request('http://localhost:3000/api/voting', {
+        method: 'POST', 
+        headers: new Headers({ 'Content-Type': 'application/json'}), 
+        body: JSON.stringify(voter_data)
+      })
+
+      fetch(request)
+      .then(function(response) {
+        return response.json()
+      })
+      .then(function(body) {
+        console.log(body);
+        let voters = that.state.voters;
+        voters.concat(body);
+        that.setState({
+          voters: voters
+        });
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+    });
+
+  }
+
+
   // Render page
   render() {
     const { className, ...props } = this.props;
+    let voters = this.state.voters;
+
     return (
       <div className={classnames('App', className)} {...props}>
         <div className="App-header">
@@ -66,7 +96,9 @@ class App extends Component {
         <p className="App-intro">
           Please enter your address below and choose to vote for this candidate
         </p>
-
+        <ul id="list">
+          {voters.map(voter => <li>{voter.title} > {JSON.stringify(voter.approves)}</li>)}
+        </ul>
         <form>
           <input type="text" ref="voter_name" placeholder="Your Name"/>
           <input type="text" ref="voter_address" placeholder="Your Address"/>
@@ -74,12 +106,22 @@ class App extends Component {
           <label for="vote">Vote for candidate?</label>
 
           <button onClick={this.addVoter.bind(this)}>Send Vote</button>
-          <button onClick={this.showVoterPool.bind(this)}>See votes</button>
         </form>
-        
+
+        <Map id="map" ref="map" google={this.props.google} zoom={14}>
+
+          {voters.map(voter => <Marker key={voter.id} className={'voter.approves'}
+                  name={voter.title} position={voter.latLng}/>)}
+
+        </Map>
+
+      
       </div>
     );
   }
 }
 
-export default App;
+export default GoogleApiWrapper({
+  apiKey: ("AIzaSyBuLGSfSlrq8w-ZDbQbSlxnVSe_30Dn-Ao")
+})(App)
+
