@@ -48,12 +48,14 @@ export class App extends React.Component {
     var that = this;
     e.preventDefault();
 
-    coder.find( this.refs.voter_address.value , function handleResults(results, status) {
-      console.log(results)
+    coder.find( this.refs.voter_address.value , function handleResults(status, result) {
+      console.log(result);
+
+      let latLng = result[0].location.lat.toString() + ', ' + result[0].location.lng.toString()
       // process voter with geocoded address
       let voter_data = {
         'title': that.refs.voter_name.value,
-        'address' : that.refs.voter_address.value, 
+        'address' : latLng, 
         'approves' : that.refs.voter_choice.checked
       };
 
