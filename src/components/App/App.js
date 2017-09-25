@@ -6,22 +6,51 @@ class App extends Component {
   // Add the voter's choice to the database
   addVoter(e) {
     var that = this;
-    event.preventDefault();
+    e.preventDefault();
     let voter_data = {
+      'title': this.refs.voter_name.value,
       'address' : this.refs.voter_address.value, 
-      'vote' : this.refs.voter_choice.value
+      'approves' : this.refs.voter_choice.checked
     };
 
     console.log(voter_data);
 
-    fetch('/api/voting', { 
-      method: 'POST',
-      data: voter_data
+    var request = new Request('http://localhost:3000/api/voting', {
+      method: 'POST', 
+      headers: new Headers({ 'Content-Type': 'application/json'}), 
+      body: JSON.stringify(voter_data)
     })
+
+    fetch(request)
     .then(function(response) {
       return response.json()
     }).then(function(body) {
       console.log(body);
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+
+  }
+
+  // Show a full map of voters
+  showVoterPool(e) {
+    var that = this;
+    e.preventDefault();
+
+    var request = new Request('http://localhost:3000/api/voters', {
+      method: 'GET', 
+      headers: new Headers({ 'Content-Type': 'application/json'})
+    })
+
+    fetch(request)
+    .then(function(response) {
+      return response.json()
+    }).then(function(body) {
+      console.log(body);
+    })
+    .catch(function(err) {
+      console.log(err);
     });
 
   }
@@ -45,7 +74,7 @@ class App extends Component {
           <label for="vote">Vote for candidate?</label>
 
           <button onClick={this.addVoter.bind(this)}>Send Vote</button>
-          <button onClick={this.props.actions.pool}>See votes</button>
+          <button onClick={this.showVoterPool.bind(this)}>See votes</button>
         </form>
         
       </div>
