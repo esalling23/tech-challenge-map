@@ -4,7 +4,6 @@ const Voter = require('../db/models/voter');
 const router = require('express').Router()
 
 router.post('/', function(req, res, next) {
-
     Voter.create({
         'title': req.body.title,
         'address': req.body.address, 

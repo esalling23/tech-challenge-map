@@ -50,7 +50,7 @@ export class App extends React.Component {
 
     coder.find( this.refs.voter_address.value , function handleResults(status, result) {
       console.log(result);
-
+      
       let latLng = result[0].location.lat.toString() + ', ' + result[0].location.lng.toString()
       // process voter with geocoded address
       let voter_data = {
