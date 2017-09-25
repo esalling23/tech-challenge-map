@@ -26,26 +26,50 @@ export const expressTest = () => {
     }
 }
 
-export const DB_TEST_START = "DB_TEST_START";
-export const dbTestStart = () => {
-    return { type: DB_TEST_START }
+export const VOTER_START = "VOTER_START";
+export const voterStart = () => {
+    return { type: VOTER_START }
 }
-export const DB_TEST_RESULTS = "DB_TEST_RESULTS";
-export const dbTestResults = (data) => {
-    return { type: DB_TEST_RESULTS, data }
+export const VOTER_RESULTS = "VOTER_RESULTS";
+export const voterResults = (data) => {
+    return { type: VOTER_RESULTS, data }
 }
-export const DB_TEST_ERROR = "DB_TEST_ERROR";
-export const dbTestError = (data) => {
-    return { type: DB_TEST_ERROR, data }
+export const VOTER_ERROR = "VOTER_ERROR";
+export const voterError = (data) => {
+    return { type: VOTER_ERROR, data }
 }
 
-export const DB_TEST = "DB_TEST"
-export const dbTest = () => {
+export const VOTER = "VOTER"
+export const voter = (data) => {
     return dispatch => {
-        dispatch(dbTestStart());
-        axios.get(`/api/products`)
-            .then(res => dispatch(dbTestResults(JSON.stringify(res.data))))
-            .catch(err => dispatch(dbTestError(err)))
+        dispatch(voterStart());
+        axios.post(`/api/voting`, data)
+            .then(res => dispatch(voterResults(JSON.stringify(res.data))))
+            .catch(err => dispatch(voterError(err)))
+
+    }
+}
+
+export const POOL_START = "POOL_START";
+export const poolStart = () => {
+    return { type: POOL_START }
+}
+export const POOL_RESULTS = "POOL_RESULTS";
+export const poolResults = (data) => {
+    return { type: POOL_RESULTS, data }
+}
+export const POOL_ERROR = "POOL_ERROR";
+export const poolError = (data) => {
+    return { type: POOL_ERROR, data }
+}
+
+export const POOL = "POOL"
+export const pool = () => {
+    return dispatch => {
+        dispatch(poolStart());
+        axios.get(`/api/voters`)
+            .then(res => dispatch(poolResults(JSON.stringify(res.data))))
+            .catch(err => dispatch(poolError(err)))
 
     }
 }

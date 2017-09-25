@@ -7,7 +7,7 @@ const name = process.env.DATABASE_NAME || pkg.name;
 
 const url = process.env.DATABASE_URL || `postgres://localhost:5432/${name}`;
 
-console.log(chalk.yellow(`Opening database connection to ${url}${name}`));
+console.log(chalk.yellow(`Opening database connection to ${url}`));
 
 // create the database instance
 const db = module.exports = new Sequelize(url, {

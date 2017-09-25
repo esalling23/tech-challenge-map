@@ -1,30 +1,53 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
-import { Link } from 'react-router-dom';
-import logo from './logo.svg';
 import './style.css';
-
 class App extends Component {
 
+  // Add the voter's choice to the database
+  addVoter(e) {
+    var that = this;
+    event.preventDefault();
+    let voter_data = {
+      'address' : this.refs.voter_address.value, 
+      'vote' : this.refs.voter_choice.value
+    };
+
+    console.log(voter_data);
+
+    fetch('/api/voting', { 
+      method: 'POST',
+      data: voter_data
+    })
+    .then(function(response) {
+      return response.json()
+    }).then(function(body) {
+      console.log(body);
+    });
+
+  }
+
+  // Render page
   render() {
     const { className, ...props } = this.props;
     return (
       <div className={classnames('App', className)} {...props}>
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React - Fullstack!</h2>
+          <h2>Welcome to Voting - Online!</h2>
         </div>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          Please enter your address below and choose to vote for this candidate
         </p>
-        <Link to='about'><button>Test React Router</button></Link>
-        <br />
-        <br />
-        <button onClick={this.props.actions.expressTest}>Test if Express is working</button>
-        <br />
-        <br />
-        <button onClick={this.props.actions.dbTest}>Test if Express and Sequelize are working</button>
-        <div style={{ padding: '30px' }}>{this.props.results}</div>
+
+        <form>
+          <input type="text" ref="voter_name" placeholder="Your Name"/>
+          <input type="text" ref="voter_address" placeholder="Your Address"/>
+          <input type="checkbox" ref="voter_choice" id="vote" name="approve" value="approval" />
+          <label for="vote">Vote for candidate?</label>
+
+          <button onClick={this.addVoter.bind(this)}>Send Vote</button>
+          <button onClick={this.props.actions.pool}>See votes</button>
+        </form>
+        
       </div>
     );
   }
